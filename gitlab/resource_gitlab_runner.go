@@ -60,9 +60,10 @@ func resourceGitlabRunner() *schema.Resource {
 				Computed: true,
 			},
 			"maximum_timeout": {
-				Type:     schema.TypeInt,
-				Computed: true,
-				Optional: true,
+				Type:         schema.TypeInt,
+				Computed:     true,
+				Optional:     true,
+				ValidateFunc: validation.IntAtLeast(10 * 60),
 			},
 			"tags": {
 				Type:     schema.TypeSet,
@@ -100,11 +101,14 @@ func resourceGitlabRunnerCreate(d *schema.ResourceData, meta interface{}) error 
 		RunUntagged: gitlab.Bool(d.Get("run_untagged").(bool)),
 		Active:      gitlab.Bool(d.Get("active").(bool)),
 		Locked:      gitlab.Bool(d.Get("locked").(bool)),
-		// TagList:
 	}
 
 	if v, ok := d.GetOk("tags"); ok {
 		options.TagList = *(stringSetToStringSlice(v.(*schema.Set)))
+	}
+
+	if v, ok := d.GetOk("maximum_timeout"); ok {
+		options.MaximumTimeout = gitlab.Int(v.(int))
 	}
 
 	log.Printf("[DEBUG] create gitlab runner")
@@ -168,11 +172,16 @@ func resourceGitlabRunnerUpdate(d *schema.ResourceData, meta interface{}) error 
 		Active:      gitlab.Bool(d.Get("active").(bool)),
 		Locked:      gitlab.Bool(d.Get("locked").(bool)),
 		AccessLevel: gitlab.String(d.Get("access_level").(string)),
+		// MaximumTimeout: gitlab.Int(d.Get("maximum_timeout").(int)),
 		// X: gitlab.String(d.Get("X").(string)),
 	}
 
 	if v, ok := d.GetOk("tags"); ok {
 		options.TagList = *(stringSetToStringSlice(v.(*schema.Set)))
+	}
+
+	if v, ok := d.GetOk("maximum_timeout"); ok {
+		options.MaximumTimeout = gitlab.Int(v.(int))
 	}
 
 	log.Printf("[DEBUG] update gitlab runner %d", id)
