@@ -51,9 +51,8 @@ func resourceGitlabRunner() *schema.Resource {
 				Computed: true,
 			},
 			"locked": {
-				Type: schema.TypeBool,
-				// Computed: true,
-				Default:  true,
+				Type:     schema.TypeBool,
+				Computed: true,
 				Optional: true,
 			},
 			"is_shared": {
@@ -146,10 +145,9 @@ func resourceGitlabRunnerRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("revision", v.Revision)
 	d.Set("version", v.Version)
 	d.Set("is_shared", v.IsShared)
-	d.Set("locked", !v.IsShared)
 	d.Set("maximum_timeout", v.MaximumTimeout)
 	d.Set("tags", v.TagList)
-	// d.Set("locked", v.Locked)
+	d.Set("locked", v.Locked)
 	// d.Set("X", v.X)
 
 	return nil
