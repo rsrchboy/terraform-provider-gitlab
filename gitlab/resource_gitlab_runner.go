@@ -38,7 +38,7 @@ func resourceGitlabRunner() *schema.Resource {
 			},
 			"access_level": {
 				Type:         schema.TypeString,
-				Default:      "not_protected",
+				Computed:     true,
 				Optional:     true,
 				ValidateFunc: validation.StringInSlice([]string{"not_protected", "ref_protected"}, true),
 			},
@@ -62,6 +62,7 @@ func resourceGitlabRunner() *schema.Resource {
 			"maximum_timeout": {
 				Type:     schema.TypeInt,
 				Computed: true,
+				Optional: true,
 			},
 			"tags": {
 				Type:     schema.TypeSet,
@@ -78,12 +79,12 @@ func resourceGitlabRunner() *schema.Resource {
 			"active": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				Default:  true,
+				Computed: true,
 			},
 			"run_untagged": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				Default:  false,
+				Computed: true,
 			},
 		},
 	}
