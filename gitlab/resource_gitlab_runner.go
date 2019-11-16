@@ -87,6 +87,30 @@ func resourceGitlabRunner() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"ip_address": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"contacted_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"online": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"status": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
+			"architecture": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"name": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -153,6 +177,12 @@ func resourceGitlabRunnerRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("maximum_timeout", v.MaximumTimeout)
 	d.Set("tags", v.TagList)
 	d.Set("locked", v.Locked)
+	d.Set("online", v.Online)
+	d.Set("status", v.Status)
+	d.Set("ip_address", v.IPAddress)
+	d.Set("contacted_at", v.ContactedAt)
+	d.Set("architecture", v.Architecture)
+	d.Set("name", v.Name)
 	// d.Set("X", v.X)
 
 	return nil
