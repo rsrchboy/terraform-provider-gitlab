@@ -111,6 +111,34 @@ func resourceGitlabRunner() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"projects": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"id": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"name": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"name_with_namespace": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"path": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"path_with_namespace": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -184,6 +212,20 @@ func resourceGitlabRunnerRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("architecture", v.Architecture)
 	d.Set("name", v.Name)
 	// d.Set("X", v.X)
+
+	projectsList := []interface{}{}
+	for _, project := range v.Projects {
+		log.Printf("[DEBUG] read gitlab runner %d project %d", runnerID, project.ID)
+		values := map[string]interface{}{
+			"id":                  project.ID,
+			"name":                project.Name,
+			"name_with_namespace": project.NameWithNamespace,
+			"path":                project.Path,
+			"path_with_namespace": project.PathWithNamespace,
+		}
+		projectsList = append(projectsList, values)
+	}
+	d.Set("projects", projectsList)
 
 	return nil
 }
