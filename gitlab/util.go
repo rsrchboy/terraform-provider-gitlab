@@ -1,6 +1,7 @@
 package gitlab
 
 import (
+	"crypto/sha256"
 	"fmt"
 	"net/url"
 	"regexp"
@@ -189,4 +190,8 @@ func stringSetToStringSlice(stringSet *schema.Set) *[]string {
 		ret = append(ret, envVal.(string))
 	}
 	return &ret
+}
+
+func hashSum(contents interface{}) string {
+	return fmt.Sprintf("%x", sha256.Sum256([]byte(contents.(string))))
 }
