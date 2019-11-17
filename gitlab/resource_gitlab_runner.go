@@ -24,8 +24,33 @@ func resourceGitlabRunner() *schema.Resource {
 			"registration_token": {
 				Type:      schema.TypeString,
 				ForceNew:  true,
-				Required:  true,
+				Optional:  true,
 				Sensitive: true,
+				StateFunc: hashSum,
+				ConflictsWith: []string{
+					"registration_group_id",
+					"registration_project_id",
+				},
+			}
+			"registration_project_id": {
+				Type:         schema.TypeInt,
+				ForceNew:     true,
+				ValidateFunc: validation.IntAtLeast(1),
+				Optional:     true,
+				ConflictsWith: []string{
+					"registration_token",
+					"registration_group_id",
+				},
+			},
+			"registration_group_id": {
+				Type:         schema.TypeInt,
+				ForceNew:     true,
+				ValidateFunc: validation.IntAtLeast(1),
+				Optional:     true,
+				ConflictsWith: []string{
+					"registration_token",
+					"registration_project_id",
+				},
 			},
 			"token": {
 				Type:      schema.TypeString,
@@ -166,9 +191,26 @@ func resourceGitlabRunner() *schema.Resource {
 func resourceGitlabRunnerCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*gitlab.Client)
 
+	log.Printf("[DEBUG] create gitlab runner")
+
+	registrationToken := ""
+
+	if v, ok := d.GetOk("registration_token"); ok {
+		log.Printf("[DEBUG] create gitlab runner via specific token")
+		registrationToken = v.(string)
+	} else if v, ok := d.GetOk("registration_group_id"); ok {
+		log.Printf("[DEBUG] create gitlab runner via group %d", v.(int))
+		group, _, _ := client.Groups.GetGroup(v.(int))
+		registrationToken = group.RunnersToken
+	} else if v, ok := d.GetOk("registration_project_id"); ok {
+		log.Printf("[DEBUG] create gitlab runner via project %d", v.(int))
+		project, _, _ := client.Projects.GetProject(v.(int), nil)
+		registrationToken = project.RunnersToken
+	}
+
 	// https://godoc.org/github.com/xanzy/go-gitlab#RegisterNewRunnerOptions
 	options := gitlab.RegisterNewRunnerOptions{
-		Token:       gitlab.String(d.Get("registration_token").(string)),
+		Token:       &registrationToken,
 		Description: gitlab.String(d.Get("description").(string)),
 		RunUntagged: gitlab.Bool(d.Get("run_untagged").(bool)),
 		Active:      gitlab.Bool(d.Get("active").(bool)),
@@ -182,8 +224,6 @@ func resourceGitlabRunnerCreate(d *schema.ResourceData, meta interface{}) error 
 	if v, ok := d.GetOk("maximum_timeout"); ok {
 		options.MaximumTimeout = gitlab.Int(v.(int))
 	}
-
-	log.Printf("[DEBUG] create gitlab runner")
 
 	runnerDetails, _, err := client.Runners.RegisterNewRunner(&options)
 	if err != nil {
