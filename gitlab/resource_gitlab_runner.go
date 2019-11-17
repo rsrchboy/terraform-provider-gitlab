@@ -139,6 +139,26 @@ func resourceGitlabRunner() *schema.Resource {
 					},
 				},
 			},
+			"groups": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"id": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"name": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"web_url": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -226,6 +246,18 @@ func resourceGitlabRunnerRead(d *schema.ResourceData, meta interface{}) error {
 		projectsList = append(projectsList, values)
 	}
 	d.Set("projects", projectsList)
+
+	groupsList := []interface{}{}
+	for _, group := range v.Groups {
+		log.Printf("[DEBUG] read gitlab runner %d group %d", runnerID, group.ID)
+		values := map[string]interface{}{
+			"id":      group.ID,
+			"name":    group.Name,
+			"web_url": group.WebURL,
+		}
+		groupsList = append(groupsList, values)
+	}
+	d.Set("groups", groupsList)
 
 	return nil
 }
