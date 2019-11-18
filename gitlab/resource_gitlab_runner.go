@@ -31,7 +31,7 @@ func resourceGitlabRunner() *schema.Resource {
 					"registration_group_id",
 					"registration_project_id",
 				},
-			}
+			},
 			"registration_project_id": {
 				Type:         schema.TypeInt,
 				ForceNew:     true,
