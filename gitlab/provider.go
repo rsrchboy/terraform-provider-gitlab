@@ -89,6 +89,7 @@ func Provider() terraform.ResourceProvider {
 			"gitlab_group_cluster":              resourceGitlabGroupCluster(),
 			"gitlab_group_ldap_link":            resourceGitlabGroupLdapLink(),
 			"gitlab_runner":                     resourceGitlabRunner(),
+			"gitlab_project_enable_runner":      resourceGitlabProjectEnableRunner(),
 		},
 
 		ConfigureFunc: providerConfigure,
